@@ -1,5 +1,7 @@
 import re
+import sys
 
+import ruamel.yaml.error as excepcion_yaml
 from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString as Comillas
 
@@ -30,7 +32,8 @@ def titulo(texto: str, tipo: str = "*") -> str:
 def yaml_as_dict(my_file: str) -> dict:
     """Carga un archivo YAML y lo convierte en un diccionario."""
     with open(my_file, 'r', encoding="utf-8") as fp:
-        contenido = yaml.load(fp)
+        contenido = re.sub(r":\d", ":", fp.read())
+        contenido = yaml.load(contenido)
     return contenido
 
 
@@ -83,13 +86,14 @@ def procesar_diferencias(ddiff: dict, ruta_ingles: str, trans_lang: str) -> str:
         if len(traducciones_automaticas) > 0:
             final: dict = {f"l_{trans_lang}": {}}
             with open(ruta_ingles, 'r', encoding="utf-8") as f:
-                output: dict = yaml.load(f)
+                contenido = re.sub(r":\d", ":", f.read())
+                output: dict = yaml.load(contenido)
 
-            for elemento in output[trans_lang]:
-                final[trans_lang][elemento] = Comillas(output[trans_lang][elemento])
+            for elemento in output[f"l_{trans_lang}"]:
+                final[f"l_{trans_lang}"][elemento] = Comillas(output[f"l_{trans_lang}"][elemento])
 
             for clave, traduccion in traducciones_automaticas:
-                final[trans_lang][clave] = Comillas(traduccion)
+                final[f"l_{trans_lang}"][clave] = Comillas(traduccion)
 
             with open(ruta_ingles, 'w', encoding="utf-8") as f:
                 yaml.dump(final, f)
@@ -135,31 +139,45 @@ original_lang, translation_lang = idiomas_origen_destino()
 
 if path_mod_vicky is None:
     print("Error in the configuration file. Cannot read the local mod path")
-    exit(1)
+    sys.exit(1)
 
 if path_mod_steam is None:
     print("Error in the configuration file. Cannot read the Steam mod path")
-    exit(2)
+    sys.exit(2)
 
 if original_lang is None:
     print("Error in the configuration file. Cannot read the original language")
-    exit(3)
+    sys.exit(3)
 
 if translation_lang is None:
     print("Error in the configuration file. Cannot read the target language")
-    exit(4)
+    sys.exit(4)
 
 if not os.path.exists(path_mod_steam):
     print(f"This path does not exist: {path_mod_steam}")
-    exit(5)
+    sys.exit(5)
 
 if not os.path.exists(path_mod_vicky):
+    print(path_mod_vicky)
     print(f"This path does not exist: {path_mod_vicky}")
-    exit(6)
+    sys.exit(6)
 
+if not os.path.exists(os.path.join(path_mod_steam, "localization")):
+    print(f"Isn't the correct previous mod folder: {os.path.join(path_mod_steam, "localization")}")
+    sys.exit(7)
+    
+if not os.path.exists(os.path.join(path_mod_vicky, "localization")):
+    print(f"Isn't the correct updated mod folder: {os.path.join(path_mod_vicky, "localization")}")
+    sys.exit(8)
 
 # Ejecutar la comparación y escribir el resultado en un archivo
-res = comparar_archivos(path_mod_vicky, path_mod_steam, original_lang, translation_lang)
-
-with open(os.path.join(os.getcwd(), 'res.txt'), 'w', encoding="utf-8") as file:
-    file.write(res)
+try:
+    res = comparar_archivos(path_mod_vicky, path_mod_steam, original_lang, translation_lang)
+    with open(os.path.join(os.getcwd(), 'res.txt'), 'w', encoding="utf-8") as file:
+        file.write(res)
+except excepcion_yaml as e:
+    print(f"ERROR IN THE YAML: {e}")
+except Exception as e:
+    print(f"ERROR: {e}")
+finally:
+    sys.exit(100)
