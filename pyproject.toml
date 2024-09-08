@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "ComparadorYAMLviky"
+version = "1.0.0"
+description = ""
+authors = ["ElToni"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+googletrans = "4.0.0rc1"
+ruamel-yaml = "^0.18.6"
+deepdiff = "^8.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
