@@ -1,10 +1,15 @@
 import configparser as cfg
+import os
 
 # Ruta por defecto donde se va a almacenar la configuración
 FICHERO_CONFIGURACION: str = "config.ini"
 
 # Creamos el objeto de ConfigParser de manera global
 config: cfg.ConfigParser = cfg.ConfigParser()
+
+
+def existe_fichero(fichero: str = FICHERO_CONFIGURACION) -> bool:
+    return os.path.exists(fichero) and os.path.isfile(fichero)
 
 
 def crear_configuracion(fichero: str = FICHERO_CONFIGURACION):

@@ -10,7 +10,7 @@ import os
 from io import StringIO
 
 from translator import traducir
-from config import crear_configuracion, obtener_rutas, traducir_si_no, idiomas_origen_destino
+from config import crear_configuracion, obtener_rutas, traducir_si_no, idiomas_origen_destino, existe_fichero
 
 yaml = YAML()
 yaml.width = 90000000
@@ -132,52 +132,58 @@ def comparar_archivos(dir_nuevo: str, dir_viejo: str, orig_lang: str, trans_lang
     return resultado.getvalue()
 
 
+existe_fichero: bool = existe_fichero()
+
 crear_configuracion()
 
-path_mod_steam, path_mod_vicky = obtener_rutas()
-original_lang, translation_lang = idiomas_origen_destino()
+if existe_fichero:
+    path_mod_steam, path_mod_vicky = obtener_rutas()
+    original_lang, translation_lang = idiomas_origen_destino()
 
-if path_mod_vicky is None:
-    print("Error in the configuration file. Cannot read the local mod path")
-    sys.exit(1)
+    if path_mod_vicky is None:
+        print("Error in the configuration file. Cannot read the local mod path")
+        sys.exit(1)
 
-if path_mod_steam is None:
-    print("Error in the configuration file. Cannot read the Steam mod path")
-    sys.exit(2)
+    if path_mod_steam is None:
+        print("Error in the configuration file. Cannot read the Steam mod path")
+        sys.exit(2)
 
-if original_lang is None:
-    print("Error in the configuration file. Cannot read the original language")
-    sys.exit(3)
+    if original_lang is None:
+        print("Error in the configuration file. Cannot read the original language")
+        sys.exit(3)
 
-if translation_lang is None:
-    print("Error in the configuration file. Cannot read the target language")
-    sys.exit(4)
+    if translation_lang is None:
+        print("Error in the configuration file. Cannot read the target language")
+        sys.exit(4)
 
-if not os.path.exists(path_mod_steam):
-    print(f"This path does not exist: {path_mod_steam}")
-    sys.exit(5)
+    if not os.path.exists(path_mod_steam):
+        print(f"This path does not exist: {path_mod_steam}")
+        sys.exit(5)
 
-if not os.path.exists(path_mod_vicky):
-    print(path_mod_vicky)
-    print(f"This path does not exist: {path_mod_vicky}")
-    sys.exit(6)
+    if not os.path.exists(path_mod_vicky):
+        print(path_mod_vicky)
+        print(f"This path does not exist: {path_mod_vicky}")
+        sys.exit(6)
 
-if not os.path.exists(os.path.join(path_mod_steam, "localization")):
-    print(f"Isn't the correct previous mod folder: {os.path.join(path_mod_steam, "localization")}")
-    sys.exit(7)
-    
-if not os.path.exists(os.path.join(path_mod_vicky, "localization")):
-    print(f"Isn't the correct updated mod folder: {os.path.join(path_mod_vicky, "localization")}")
-    sys.exit(8)
+    if not os.path.exists(os.path.join(path_mod_steam, "localization")):
+        print(f"Isn't the correct previous mod folder: {os.path.join(path_mod_steam, "localization")}")
+        sys.exit(7)
 
-# Ejecutar la comparación y escribir el resultado en un archivo
-try:
-    res = comparar_archivos(path_mod_vicky, path_mod_steam, original_lang, translation_lang)
-    with open(os.path.join(os.getcwd(), 'res.txt'), 'w', encoding="utf-8") as file:
-        file.write(res)
-except excepcion_yaml as e:
-    print(f"ERROR IN THE YAML: {e}")
-except Exception as e:
-    print(f"ERROR: {e}")
-finally:
-    sys.exit(100)
+    if not os.path.exists(os.path.join(path_mod_vicky, "localization")):
+        print(f"Isn't the correct updated mod folder: {os.path.join(path_mod_vicky, "localization")}")
+        sys.exit(8)
+
+    # Ejecutar la comparación y escribir el resultado en un archivo
+    try:
+        res = comparar_archivos(path_mod_vicky, path_mod_steam, original_lang, translation_lang)
+        with open(os.path.join(os.getcwd(), 'res.txt'), 'w', encoding="utf-8") as file:
+            file.write(res)
+        print("res.txt created successfully")
+    except excepcion_yaml as ex:
+        print(f"ERROR IN THE YAML: {ex}")
+    except Exception as ex:
+        print(f"ERROR: {ex}")
+    finally:
+        sys.exit(100)
+else:
+    print(".ini confiuration file created successfully in the current directory")
