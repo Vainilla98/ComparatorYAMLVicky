@@ -41,10 +41,20 @@ def procesar_diferencias(ddiff: dict, ruta_ingles: str, trans_lang: str) -> str:
     """Procesa las diferencias y las devuelve en formato de texto."""
     resultado = StringIO()
 
-    if "dictionary_item_removed" in ddiff:
+    if "dictionary_item_added" in ddiff:
         resultado.write(titulo("NUEVOS"))
+        for e in ddiff["dictionary_item_added"]:
+            resultado.write(f" - {e[19:-2]}\n")
+
+    if "dictionary_item_removed" in ddiff:
+        resultado.write(f"\n{titulo("QUITADOS")}")
         for e in ddiff["dictionary_item_removed"]:
             resultado.write(f" - {e[19:-2]}\n")
+
+    # if "dictionary_item_added" in ddiff:
+    #     resultado.write(titulo("QUITADOS"))
+    #     for e in ddiff["dictionary_item_added"]:
+    #         resultado.write(f" - {e}\n")
 
     if "values_changed" in ddiff:
         resultado.write(f"\n{titulo("CAMBIADOS")}")
@@ -137,14 +147,14 @@ existe_fichero: bool = existe_fichero()
 crear_configuracion()
 
 if existe_fichero:
-    path_mod_steam, path_mod_vicky = obtener_rutas()
+    path_mod_old, path_mod_new = obtener_rutas()
     original_lang, translation_lang = idiomas_origen_destino()
 
-    if path_mod_vicky is None:
+    if path_mod_new is None:
         print("Error in the configuration file. Cannot read the local mod path")
         sys.exit(1)
 
-    if path_mod_steam is None:
+    if path_mod_old is None:
         print("Error in the configuration file. Cannot read the Steam mod path")
         sys.exit(2)
 
@@ -156,28 +166,28 @@ if existe_fichero:
         print("Error in the configuration file. Cannot read the target language")
         sys.exit(4)
 
-    if not os.path.exists(path_mod_steam):
-        print(f"This path does not exist: {path_mod_steam}")
+    if not os.path.exists(path_mod_old):
+        print(f"This path does not exist: {path_mod_old}")
         sys.exit(5)
 
-    if not os.path.exists(path_mod_vicky):
-        print(path_mod_vicky)
-        print(f"This path does not exist: {path_mod_vicky}")
+    if not os.path.exists(path_mod_new):
+        print(path_mod_new)
+        print(f"This path does not exist: {path_mod_new}")
         sys.exit(6)
 
-    if not os.path.exists(os.path.join(path_mod_steam, "localization")):
-        print(f"Isn't the correct previous mod folder: {os.path.join(path_mod_steam, "localization")}")
+    if not os.path.exists(os.path.join(path_mod_old, "localization")):
+        print(f"Isn't the correct previous mod folder: {os.path.join(path_mod_old, "localization")}")
         sys.exit(7)
 
-    if not os.path.exists(os.path.join(path_mod_vicky, "localization")):
-        print(f"Isn't the correct updated mod folder: {os.path.join(path_mod_vicky, "localization")}")
+    if not os.path.exists(os.path.join(path_mod_new, "localization")):
+        print(f"Isn't the correct updated mod folder: {os.path.join(path_mod_new, "localization")}")
         sys.exit(8)
 
     # Ejecutar la comparación y escribir el resultado en un archivo
     try:
-        res = comparar_archivos(path_mod_vicky, path_mod_steam, original_lang, translation_lang)
+        res = comparar_archivos(path_mod_new, path_mod_old, original_lang, translation_lang)
         with open(os.path.join(os.getcwd(), 'res.txt'), 'w', encoding="utf-8") as file:
-            file.write(res)
+            file.write(res[1:])  # El '1:' es para quitar el primer salto de línea
         print("res.txt created successfully")
     except excepcion_yaml as ex:
         print(f"ERROR IN THE YAML: {ex}")

@@ -26,10 +26,10 @@ def crear_configuracion(fichero: str = FICHERO_CONFIGURACION):
     if not config.has_section("CAMBIOS"):
         config.add_section("CAMBIOS")
 
-    if not config.has_option('CAMBIOS', "path_mod_steam"):
-        config.set('CAMBIOS', "path_mod_steam", "C:/Program Files (x86)/Steam/steamapps/workshop/content/529340")
-    if not config.has_option('CAMBIOS', "path_mod_vicky"):
-        config.set('CAMBIOS', "path_mod_vicky",
+    if not config.has_option('CAMBIOS', "path_mod_old"):
+        config.set('CAMBIOS', "path_mod_old", "C:/Program Files (x86)/Steam/steamapps/workshop/content/529340")
+    if not config.has_option('CAMBIOS', "path_mod_new"):
+        config.set('CAMBIOS', "path_mod_new",
                    "C:/User/User/Documents/Paradox Interactive/Victoria 3/mod/L'amour a Espagne")
     if not config.has_option('CAMBIOS', "translate"):
         config.set('CAMBIOS', "translate", "True")
@@ -53,13 +53,13 @@ def obtener_rutas(fichero: str = FICHERO_CONFIGURACION) -> (str, str):
     config_str: list[str] = config.read(fichero)
 
     if len(config_str) != 0:
-        path_mod_steam = config.get('CAMBIOS', 'path_mod_steam')
-        path_mod_vicky = config.get('CAMBIOS', 'path_mod_vicky')
+        _path_mod_old = config.get('CAMBIOS', 'path_mod_old')
+        _path_mod_new = config.get('CAMBIOS', 'path_mod_new')
     else:
-        path_mod_steam = None
-        path_mod_vicky = None
+        _path_mod_old = None
+        _path_mod_new = None
 
-    return path_mod_steam, path_mod_vicky
+    return _path_mod_old, _path_mod_new
 
 
 def traducir_si_no(fichero: str = FICHERO_CONFIGURACION) -> bool:
