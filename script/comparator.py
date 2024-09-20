@@ -1,7 +1,7 @@
 import re
 import sys
+import traceback
 
-import ruamel.yaml.error as excepcion_yaml
 from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString as Comillas
 
@@ -171,7 +171,6 @@ if existe_fichero:
         sys.exit(5)
 
     if not os.path.exists(path_mod_new):
-        print(path_mod_new)
         print(f"This path does not exist: {path_mod_new}")
         sys.exit(6)
 
@@ -189,10 +188,8 @@ if existe_fichero:
         with open(os.path.join(os.getcwd(), 'res.txt'), 'w', encoding="utf-8") as file:
             file.write(res[1:])  # El '1:' es para quitar el primer salto de línea
         print("res.txt created successfully")
-    except excepcion_yaml as ex:
-        print(f"ERROR IN THE YAML: {ex}")
     except Exception as ex:
-        print(f"ERROR: {ex}")
+        traceback.print_exception(ex)
     finally:
         sys.exit(100)
 else:
